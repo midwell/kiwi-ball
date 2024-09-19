@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Red Dot Game for Cats</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const dot = {
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: 20,
+            color: 'red',
+            speedX: (Math.random() - 0.5) * 10,
+            speedY: (Math.random() - 0.5) * 10,
+            angle: 0,
+            movementType: 'linear'
+        };
+
+        function drawDot() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.arc(dot.x, dot.y, dot.size, 0, Math.PI * 2);
+            ctx.fillStyle = dot.color;
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function updateDotPosition() {
+            switch (dot.movementType) {
+                case 'linear':
+                    dot.x += dot.speedX;
+                    dot.y += dot.speedY;
+                    break;
+                case 'zigzag':
+                    dot.x += dot.speedX;
+                    dot.y += Math.sin(dot.angle) * 5;
+                    dot.angle += 0.1;
+                    break;
+                case 'circular':
+                    dot.x += Math.cos(dot.angle) * 5;
+                    dot.y += Math.sin(dot.angle) * 5;
+                    dot.angle += 0.1;
+                    break;
+            }
+
+            if (dot.x < dot.size || dot.x > canvas.width - dot.size) {
+                dot.speedX *= -1;
+            }
+            if (dot.y < dot.size || dot.y > canvas.height - dot.size) {
+                dot.speedY *= -1;
+            }
+
+            drawDot();
+            requestAnimationFrame(updateDotPosition);
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            const distance = Math.sqrt((mouseX - dot.x) ** 2 + (mouseY - dot.y) ** 2);
+            if (distance < dot.size) {
+                dot.x = Math.random() * canvas.width;
+                dot.y = Math.random() * canvas.height;
+                dot.speedX = (Math.random() - 0.5) * 10;
+                dot.speedY = (Math.random() - 0.5) * 10;
+                dot.angle = 0;
+
+                const movementTypes = ['linear', 'zigzag', 'circular'];
+                dot.movementType = movementTypes[Math.floor(Math.random() * movementTypes.length)];
+            }
+        });
+
+        updateDotPosition();
+    </script>
+</body>
+</html>
